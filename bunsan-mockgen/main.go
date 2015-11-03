@@ -5,18 +5,26 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 
 	"github.com/bunsanorg/buildutils"
 )
 
-var mockgen = flag.String("mockgen", "mockgen", "github.com/golang/mock/mockgen location")
+var mockgen = flag.String("mockgen", "mockgen",
+	"github.com/golang/mock/mockgen location")
 var source = flag.String("source", "", "Source file")
 var destination = flag.String("destination", "", "Destination file")
 var importSelf = flag.Bool("import-self", false, "Import source package")
+var gofile = flag.String("gofile", "",
+	"Shortcut for -source=$gofile -destination=mock/$gofile")
 
 func main() {
 	flag.Parse()
 
+	if *gofile != "" {
+		*source = *gofile
+		*destination = path.Join("mock", *gofile)
+	}
 	if *source == "" {
 		log.Fatal("-source is required")
 	}
