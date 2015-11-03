@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 
 	"github.com/bunsanorg/buildutils"
 )
@@ -14,7 +15,6 @@ var mockgen = flag.String("mockgen", "mockgen",
 	"github.com/golang/mock/mockgen location")
 var source = flag.String("source", "", "Source file")
 var destination = flag.String("destination", "", "Destination file")
-var importSelf = flag.Bool("import-self", false, "Import source package")
 var gofile = flag.String("gofile", "",
 	"Shortcut for -source=$gofile -destination=mock/$gofile")
 
@@ -40,12 +40,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	arguments := []string{
-		"-source", *source,
-		"-destination", *destination,
+	interfaces, err := ListInterfacesFromFile(*source)
+	if err != nil {
+		log.Fatal(err)
 	}
-	if *importSelf {
-		arguments = append(arguments, "-imports", ".="+importPath)
+	packageName, err := PackageNameFromFileName(*destination)
+	if err != nil {
+		log.Fatal(err)
+	}
+	arguments := []string{
+		"-destination=" + *destination,
+		"-package=" + packageName,
+		importPath,
+		strings.Join(interfaces, ","),
 	}
 	cmd := exec.Command(*mockgen, arguments...)
 	cmd.Stdout = os.Stdout
