@@ -17,6 +17,8 @@ var source = flag.String("source", "", "Source file")
 var destination = flag.String("destination", "", "Destination file")
 var gofile = flag.String("gofile", "",
 	"Shortcut for -source=$gofile -destination=mock/$gofile")
+var packageName = flag.String("package", "", "Package of the generated code; "+
+	"defaults to the package of the input with a 'mock_' prefix.")
 
 func main() {
 	flag.Parse()
@@ -44,13 +46,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	packageName, err := PackageNameFromFileName(*destination)
-	if err != nil {
-		log.Fatal(err)
-	}
 	arguments := []string{
 		"-destination=" + *destination,
-		"-package=" + packageName,
+		"-package=" + *packageName,
 		importPath,
 		strings.Join(interfaces, ","),
 	}
