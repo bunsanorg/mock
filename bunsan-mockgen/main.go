@@ -40,6 +40,8 @@ func main() {
 		arguments = append(arguments, "-imports", ".="+importPath)
 	}
 	cmd := exec.Command(*mockgen, arguments...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	err = cmd.Run()
 	if err != nil {
 		log.Fatal(err)
